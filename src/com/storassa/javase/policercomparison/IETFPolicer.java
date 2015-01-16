@@ -2,10 +2,10 @@ package com.storassa.javase.policercomparison;
 
 public class IETFPolicer extends Policer {
 	private int pir;
+        private transient int pPeriod;
 	private int pbs;
+        private transient int elapsedPTick;
 	private transient int pBucket;
-	private transient Thread pThread;
-	private transient boolean stopPThread;
         
 	public IETFPolicer() {
 		super();
@@ -13,47 +13,35 @@ public class IETFPolicer extends Policer {
 		pir = 1;
 		pbs = 1;
 		pBucket = 0;
-		stopPThread = false;
-
-		pThread = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				while (!stopPThread) {
-					if (pBucket < pbs)
-						pBucket++;
-					try {
-						Thread.sleep(1000 / pir);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-
-			}
-		});
-
+                elapsedPTick = 0;
 	}
-
-	@Override
-	public void start() {
-		super.start();
-		stopPThread = false;
-		pThread.start();
-	}
-	
-	@Override
-	public void stop() {
-		super.stop();
-		stopPThread = true;
-	}
-
+        
+        @Override
+        public void tick() {
+            super.tick();
+            
+            if (elapsedPTick > pPeriod) {
+                elapsedPTick = 0;
+                incrementPBucket();
+            }
+        }
+        
+        private void incrementPBucket() {
+            if (pBucket < pbs)
+                pBucket++;
+        }
+        
 	public int getPir() {
 		return pir;
 	}
 
 	public void setPir(int pir) {
+            if (pir > 0) {
+                pPeriod = TICK_GRANULARITY / pir;
 		this.pir = pir;
+            } else {
+                throw new IllegalArgumentException("PIR cannot be negative or zero");
+            }
 	}
 
 	public int getPbs() {

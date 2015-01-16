@@ -3,14 +3,15 @@ package com.storassa.javase.policercomparison;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import org.omg.DynamicAny.DynAnyPackage.InvalidValue;
 
 @Entity
 public abstract class Policer implements Serializable {
 	protected int cir;
+        protected int cPeriod;
 	protected int cbs;
 	protected transient int cBucket;
-	protected transient Thread cThread;
-	protected transient boolean stopCThread;
+        protected transient int elapsedCTicks;
         @Id
         protected String id;
 
@@ -23,39 +24,24 @@ public abstract class Policer implements Serializable {
     }
 
 	public Policer() {
-		cBucket = 0;
+		cBucket = cbs;
 		cir = 1;
 		cbs = 1;
-		stopCThread = false;
-		
-		cThread = new Thread(new Runnable() {
-
-			@Override
-			public void run() {
-				while (!stopCThread) {
-					if (cBucket < cbs)
-						cBucket++;
-					try {
-						Thread.sleep(1000 / cir);
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				}
-
-			}
-		});
+                elapsedCTicks = 0;
 	}
-
-	public void start() {
-
-		stopCThread = false;
-		cThread.start();
-	}
-
-	public void stop() {
-		stopCThread = true;
-	}
+        
+        public void tick() {
+            elapsedCTicks++;
+            if (elapsedCTicks > cPeriod) {
+                elapsedCTicks = 0;
+                incrementCBucket();
+            }
+        }
+        
+        private void incrementCBucket() {
+            if (cBucket < cbs)
+                cBucket++;
+        }
 
 	abstract PacketColor check(int size);
 
@@ -63,9 +49,13 @@ public abstract class Policer implements Serializable {
 		return cir;
 	}
 
-	public void setCir(int cir) {
-		if (cir > 0)
+	public void setCir (int cir) {
+		if (cir > 0) {
 			this.cir = cir;
+                        cPeriod = TICK_GRANULARITY / cir;
+                }
+                else
+                    throw new IllegalArgumentException("CIR cannot be negative or zero");
 	}
 
 	public int getCbs() {
@@ -80,5 +70,7 @@ public abstract class Policer implements Serializable {
 	public int getCBucket() {
 		return cBucket;
 	}
+        
+        protected static final int TICK_GRANULARITY = 1000000;
 
 }

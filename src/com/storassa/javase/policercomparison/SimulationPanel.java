@@ -16,7 +16,7 @@ public class SimulationPanel extends javax.swing.JPanel {
 
     Policer policer;
     Source source;
-    double time;
+    double simulationTime;
 
     /**
      * Creates new form SimulationPanel
@@ -29,14 +29,8 @@ public class SimulationPanel extends javax.swing.JPanel {
     }
 
     public void setPolicer(Policer _policer) {
-
-        if (policer != null) {
-            policer.stop();
-        }
-
+        
         policer = _policer;
-        policer.start();
-
     }
 
     public void setSource(Source _source) {
@@ -44,8 +38,8 @@ public class SimulationPanel extends javax.swing.JPanel {
         source = _source;
     }
 
-    public void setTime(double _time) {
-        time = _time;
+    public void setSimulationTime(double _time) {
+        simulationTime = _time;
     }
 
     /**
@@ -109,7 +103,7 @@ public class SimulationPanel extends javax.swing.JPanel {
             yellow = 0;
             green = 0;
 
-            while (cursor < time / x) {
+            while (cursor < simulationTime / x) {
                 switch (policer.check(1)) {
                     case RED:
                         red++;
@@ -121,7 +115,7 @@ public class SimulationPanel extends javax.swing.JPanel {
                         green++;
                         break;
                 }
-                rate = low + (high - low) / time * cursor;
+                rate = low + (high - low) / simulationTime * cursor;
                 cursor += 1 / rate;
             }
 
