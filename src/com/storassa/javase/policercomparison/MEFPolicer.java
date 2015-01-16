@@ -3,9 +3,9 @@ package com.storassa.javase.policercomparison;
 public class MEFPolicer extends Policer {
 	private int eir;
 	private int ebs;
-	private int eBucket;
-	private boolean stopEThread;
-	private Thread eThread;
+	private transient int eBucket;
+	private transient boolean stopEThread;
+	private transient Thread eThread;
 	
 	public MEFPolicer() {
 		super();

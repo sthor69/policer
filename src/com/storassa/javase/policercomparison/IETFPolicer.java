@@ -3,10 +3,10 @@ package com.storassa.javase.policercomparison;
 public class IETFPolicer extends Policer {
 	private int pir;
 	private int pbs;
-	private int pBucket;
-	private Thread pThread;
-	private boolean stopPThread;
-
+	private transient int pBucket;
+	private transient Thread pThread;
+	private transient boolean stopPThread;
+        
 	public IETFPolicer() {
 		super();
 		
@@ -84,4 +84,5 @@ public class IETFPolicer extends Policer {
 			return PacketColor.GREEN;
 		}
 	}
+
 }

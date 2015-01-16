@@ -1,12 +1,26 @@
 package com.storassa.javase.policercomparison;
 
+import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.Id;
 
-public abstract class Policer {
+@Entity
+public abstract class Policer implements Serializable {
 	protected int cir;
 	protected int cbs;
-	protected int cBucket;
-	protected Thread cThread;
-	protected boolean stopCThread;
+	protected transient int cBucket;
+	protected transient Thread cThread;
+	protected transient boolean stopCThread;
+        @Id
+        protected String id;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
 	public Policer() {
 		cBucket = 0;
